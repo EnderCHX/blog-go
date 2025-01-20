@@ -57,7 +57,7 @@ var DefaultConfig = Config{
 		Port:     "3306",
 		Username: "root",
 		Password: "root",
-		DBName:   "passport",
+		DBName:   "blog",
 	},
 	RedisConfig: Redis{
 		Host:     "127.0.0.1",
