@@ -89,7 +89,7 @@ func (e *Encoder) EncodeEntry(entry zapcore.Entry, fields []zapcore.Field) (*buf
 	buf.AppendString("\n")
 	return buf, nil
 }
-func init() {
+func Setup() {
 	var level zap.AtomicLevel
 	config_ := config.ConfigContext
 	if config_.LogCongfig.LogLevel == "debug" {

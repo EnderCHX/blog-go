@@ -82,7 +82,7 @@ var DefaultConfig = Config{
 	},
 }
 
-func init() {
+func Setup() {
 	log.Println("读取配置文件")
 	ConfigFile, err := os.ReadFile(ConfigFileName)
 	if err != nil {

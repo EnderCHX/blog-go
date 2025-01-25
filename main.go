@@ -1,12 +1,17 @@
 package main
 
 import (
-	_ "blog-go/api"
-	_ "blog-go/config"
-	_ "blog-go/database"
-	_ "blog-go/log"
+	"blog-go/api"
+	"blog-go/blog"
+	"blog-go/config"
+	"blog-go/database"
+	"blog-go/log"
 )
 
 func main() {
-
+	config.Setup()
+	log.Setup()
+	database.Setup()
+	blog.Setup()
+	api.StartApi()
 }

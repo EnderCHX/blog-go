@@ -15,8 +15,8 @@ var (
 	DB *gorm.DB
 )
 
-func init() {
-
+func Setup() {
+	log.Logger.Info("[MySQL]数据库连接中...")
 	defer func() {
 		if err := recover(); err != nil {
 			log.Logger.Error("数据库连接失败", zap.Any("err", err))
@@ -35,10 +35,16 @@ func init() {
 	})
 	if err != nil {
 		panic("failed to connect database")
+	} else {
+		log.Logger.Info("[MySQL]数据库连接成功")
 	}
 	DB = db
+	GetRedisClient()
 }
 
 func GetDB() *gorm.DB {
+	if DB == nil {
+		Setup()
+	}
 	return DB
 }
