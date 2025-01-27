@@ -1,3 +1,4 @@
 *.log
 config.json
 .vscode/
+.VSCodeCounter/

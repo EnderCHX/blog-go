@@ -10,7 +10,7 @@ import (
 )
 
 type Tag struct {
-	TagId   int    `json:"tag_id" gorm:"primaryKey"`
+	TagId   int    `json:"tag_id" gorm:"primaryKey;autoIncrement"`
 	TagName string `json:"tag_name" gorm:"index;unique;not null"`
 }
 
@@ -32,6 +32,15 @@ func GetTags() ([]Tag, error) {
 		return nil, err
 	}
 	return tags, err
+}
+
+func RemoveTagCache(tagname string) error {
+	rdb, rctx := database.GetRedisClient()
+	err := rdb.Del(rctx, "blog:tags:"+tagname).Err()
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func GetTagsCache() ([]Tag, error) {
@@ -59,6 +68,15 @@ func GetTagsCache() ([]Tag, error) {
 	return tags, err
 }
 
+func GetTagsMap() (map[string]string, error) {
+	rdb, rctx := database.GetRedisClient()
+	result, err := rdb.HGetAll(rctx, "blog:tags").Result()
+	if len(result) == 0 {
+		return nil, fmt.Errorf("no tags in cache")
+	}
+	return result, err
+}
+
 func UpdateTagsCache(tags []Tag) error {
 	rdb, rctx := database.GetRedisClient()
 
@@ -69,5 +87,24 @@ func UpdateTagsCache(tags []Tag) error {
 		}
 	}
 
+	return nil
+}
+
+func CreateTags(tags []Tag) error {
+	for _, tag := range tags {
+		err := tag.Create()
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (t *Tag) Create() error {
+	db := database.GetDB()
+	err := db.Create(&t).Error
+	if err != nil {
+		return err
+	}
 	return nil
 }

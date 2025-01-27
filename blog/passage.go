@@ -225,6 +225,32 @@ func (p *Passage) Get() error {
 	return nil
 }
 
+func (p *Passage) GetCache() error {
+	rdb, rctx := database.GetRedisClient()
+	passage, err := rdb.Get(rctx, "blog:posts:"+p.PassageId).Result()
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal([]byte(passage), p)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *Passage) UpdateCache() error {
+	valueToJson, err := json.Marshal(p)
+	if err != nil {
+		return err
+	}
+	rdb, rctx := database.GetRedisClient()
+	err = rdb.Set(rctx, "blog:posts:"+p.PassageId, valueToJson, time.Hour*1).Err()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 type PassageReqBody struct {
 	Title   string   `json:"title"`
 	Content string   `json:"content"`

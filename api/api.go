@@ -37,23 +37,17 @@ func StartApi() {
 
 	//文章列表
 	posts := r.Group("/posts")
-	{
-		posts.GET("/", controller.GetPassages)
-		posts.GET("/:tagname", controller.GetPassagesByTag)
-	}
+	posts.GET("/", controller.GetPassages)
+	posts.GET("/:tagname", controller.GetPassagesByTag)
 
 	//获取文章
 	post := r.Group("/post")
-	{
-		post.GET("/:id", controller.GetPassageById)
-	}
+	post.GET("/:id", controller.GetPassageById)
+	post.GET("/:id/tags", controller.GetPassageTags)
 
 	tag := r.Group("/tag")
-	{
-		//获取标签
-		tag.GET("/", controller.GetTags)
-		tag.GET("/:tagname", controller.GetPassagesByTag)
-	}
+	tag.GET("/", controller.GetTags) //获取标签
+	tag.GET("/:tagname", controller.GetPassagesByTag)
 
 	r.Run(config_.Host + ":" + config_.Port)
 }

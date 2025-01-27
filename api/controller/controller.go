@@ -4,6 +4,7 @@ import (
 	"blog-go/blog"
 	"blog-go/log"
 	"errors"
+	"strconv"
 
 	"fmt"
 	"net/http"
@@ -43,18 +44,68 @@ func NewPost(ctx *gin.Context) {
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"message": "Internal Server Error",
+			"message": "文章创建失败",
 			"code":    "InternalServerError",
 			"data":    err,
 		})
 		return
 	}
+
 	ctx.JSON(http.StatusOK, gin.H{
 		"message": "Success",
 		"code":    "Success",
 		"data":    passage,
 	})
+
+	// 创建标签
+	var tags []blog.Tag
+	for _, tag := range passageReqBody.Tags {
+		tags = append(tags, blog.Tag{
+			TagName: tag,
+		})
+	}
+
+	err = blog.CreateTags(tags)
+	if err != nil {
+		if errors.Is(err, gorm.ErrDuplicatedKey) {
+			log.Logger.Info("[MySQL]标签重复", zap.String("error", err.Error()))
+		}
+	}
+
+	//获取所有标签
+	tagsall, err := blog.GetTags()
+	if err != nil {
+		log.Logger.Error("[MySQL]获取标签失败", zap.String("error", err.Error()))
+	}
+
+	//更新标签缓存
+	err = blog.UpdateTagsCache(tagsall)
+
+	if err != nil {
+		log.Logger.Error("[Redis]缓存失败", zap.String("error", err.Error()))
+	}
+
+	tagsmap, _ := blog.GetTagsMap()
+
+	var passageTags []blog.PassageTags
+
+	// 创建文章标签映射
+	for _, tag := range tags {
+		passageTags = append(passageTags, blog.PassageTags{
+			PassageId: passage.PassageId,
+			TagId: func() int {
+				r, _ := strconv.Atoi(tagsmap[tag.TagName])
+				return r
+			}(),
+		})
+		blog.RemoveTagCache(tag.TagName) //删除缓存
+	}
+	err = blog.CreatePassageTags(passageTags)
+	if err != nil {
+		log.Logger.Error("[MySQL]创建 passage_tags 失败", zap.String("error", err.Error()))
+	}
 }
+
 func GetPassages(ctx *gin.Context) {
 	passages, err := blog.GetPassagesCache()
 
@@ -138,23 +189,34 @@ func GetPassagesByTag(ctx *gin.Context) {
 func GetPassageById(ctx *gin.Context) {
 	var passage blog.Passage
 	passage.PassageId = ctx.Param("id")
-	err := passage.Get()
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		log.Logger.Error("[MySQL]文章 "+passage.PassageId+" 不存在", zap.String("error", err.Error()))
-		ctx.JSON(http.StatusNotFound, gin.H{
-			"code":    "PassageNotFound",
-			"message": "文章不存在",
-			"data":    nil,
-		})
-		return
-	}
+	err := passage.GetCache()
 
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"code":    "InternalServerError",
-			"message": "服务器内部错误",
-			"data":    nil,
+		err2 := passage.Get()
+		if err2 != nil {
+			if errors.Is(err2, gorm.ErrRecordNotFound) {
+				log.Logger.Error("[MySQL]文章 "+passage.PassageId+" 不存在", zap.String("error", err2.Error()))
+				ctx.JSON(http.StatusNotFound, gin.H{
+					"code":    "PassageNotFound",
+					"message": "文章不存在",
+					"data":    nil,
+				})
+				return
+			}
+		}
+
+		ctx.JSON(http.StatusOK, gin.H{
+			"code":    "Success",
+			"message": "获取成功",
+			"data":    passage,
 		})
+
+		if err == redis.Nil {
+			err = passage.UpdateCache()
+			if err != nil {
+				log.Logger.Error("[Redis]缓存失败", zap.String("error", err.Error()))
+			}
+		}
 		return
 	}
 
@@ -162,6 +224,43 @@ func GetPassageById(ctx *gin.Context) {
 		"code":    "Success",
 		"message": "获取成功",
 		"data":    passage,
+	})
+}
+
+func GetPassageTags(ctx *gin.Context) {
+	passageId := ctx.Param("id")
+	tags, err := blog.GetPassageTagsCache(passageId)
+
+	if err != nil {
+		tags, err2 := blog.GetPassageTags(passageId)
+		if err2 != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"code":    "InternalServerError",
+				"message": "服务器内部错误",
+				"data":    nil,
+			})
+			return
+		}
+
+		ctx.JSON(http.StatusOK, gin.H{
+			"code":    "Success",
+			"message": "获取标签成功",
+			"data":    tags,
+		})
+
+		if err.Error() == "no tags in cache" && len(tags) > 0 {
+			err = blog.UpdatePassageTagsCache(passageId, tags)
+			if err != nil {
+				log.Logger.Error("[Redis]缓存失败", zap.String("error", err.Error()))
+			}
+		}
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"code":    "Success",
+		"message": "获取成功",
+		"data":    tags,
 	})
 }
 
@@ -179,7 +278,7 @@ func GetTags(ctx *gin.Context) {
 			return
 		}
 		ctx.JSON(http.StatusOK, gin.H{
-			"code":    "OK",
+			"code":    "Success",
 			"message": "获取标签成功",
 			"data":    tags,
 		})
@@ -195,7 +294,7 @@ func GetTags(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"code":    "OK",
+		"code":    "Success",
 		"message": "获取标签成功",
 		"data":    tags,
 	})

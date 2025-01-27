@@ -17,12 +17,11 @@ func Auth() gin.HandlerFunc {
 			claims, err := auth.VerifyToken(token, config.ConfigContext.SecretKeys.AccessSecret)
 			if err != nil {
 				c.JSON(http.StatusUnauthorized, gin.H{
-					"message": err,
+					"message": "token非法",
 					"code":    "InvalidAccessToken",
 					"data":    nil,
 				})
 				c.Abort()
-				return
 			} else {
 				c.Set("claims", claims)
 				c.Next()
