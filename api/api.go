@@ -16,7 +16,7 @@ func StartApi() {
 
 	r := gin.New()
 
-	r.Use(log.GinZapLogger(), gin.Recovery(), midware.Auth())
+	r.Use(log.GinZapLogger(), gin.Recovery(), midware.Auth(), midware.Cors())
 
 	r.StaticFile("/favicon.ico", "./favicon.ico")
 
