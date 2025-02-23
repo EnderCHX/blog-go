@@ -49,8 +49,6 @@ type Config struct {
 
 var ConfigContext Config
 
-var ConfigFileName = "./config.json"
-
 var DefaultConfig = Config{
 	MySQLConfig: MySQL{
 		Host:     "127.0.0.1",
@@ -82,7 +80,7 @@ var DefaultConfig = Config{
 	},
 }
 
-func Setup() {
+func Setup(ConfigFileName string) {
 	log.Println("读取配置文件")
 	ConfigFile, err := os.ReadFile(ConfigFileName)
 	if err != nil {
@@ -100,3 +98,5 @@ func Setup() {
 	log.Println("读取配置文件成功")
 	// fmt.Println(ConfigContext)
 }
+
+func GetConfig() Config { return ConfigContext }

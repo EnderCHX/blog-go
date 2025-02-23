@@ -13,16 +13,6 @@ type PassageTags struct {
 	TagId     int    `json:"tag_id" gorm:"not null"`
 }
 
-func (pt *PassageTags) CreateTable() {
-	db := database.GetDB()
-	err := db.AutoMigrate(&PassageTags{})
-	if err != nil {
-		log.Logger.Error("[MySQL]创建 passage_tags 表失败", zap.String("error", err.Error()))
-	} else {
-		log.Logger.Info("[MySQL]创建 passage_tags 表成功")
-	}
-}
-
 func CreatePassageTags(passageTags []PassageTags) error {
 	db := database.GetDB()
 	err := db.Create(&passageTags).Error

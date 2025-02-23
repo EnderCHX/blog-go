@@ -1,7 +1,6 @@
 package log
 
 import (
-	"blog-go/config"
 	"fmt"
 	"os"
 	"time"
@@ -89,12 +88,12 @@ func (e *Encoder) EncodeEntry(entry zapcore.Entry, fields []zapcore.Field) (*buf
 	buf.AppendString("\n")
 	return buf, nil
 }
-func Setup() {
+func Setup(path, loglevel string) {
 	var level zap.AtomicLevel
-	config_ := config.ConfigContext
-	if config_.LogCongfig.LogLevel == "debug" {
+
+	if loglevel == "debug" {
 		level = zap.NewAtomicLevelAt(zap.DebugLevel)
-	} else if config_.LogCongfig.LogLevel == "info" {
+	} else if loglevel == "info" {
 		level = zap.NewAtomicLevelAt(zap.InfoLevel)
 	}
 	encoder := zapcore.NewConsoleEncoder(zapcore.EncoderConfig{
@@ -113,7 +112,7 @@ func Setup() {
 	})
 
 	lumberjackLogger := &lumberjack.Logger{
-		Filename:   config_.LogCongfig.LogPath,
+		Filename:   path,
 		MaxSize:    100,
 		MaxBackups: 3,
 		MaxAge:     28,
