@@ -1,14 +1,10 @@
 package repository
 
 import (
-	"blog-go/domain/entity"
-	"blog-go/infrastructure/cache"
-
-	"gorm.io/gorm"
+	"blog-go/internal/domain/entity"
 )
 
 type TagsRepository interface {
-	InitDb(db *gorm.DB, redis *cache.Redis)
 	GetTags() ([]entity.Tag, error)
 	GetTagName(id int) (string, error)
 	GetTagId(tagname string) (int, error)

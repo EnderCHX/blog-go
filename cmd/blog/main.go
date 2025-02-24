@@ -17,7 +17,7 @@ func main() {
 	log.Setup(cf.LogCongfig.LogPath, cf.LogCongfig.LogLevel)
 	logger := log.GetLogger()
 
-	dbhepler := persistence.DbHepler{}
+	dbhelper := persistence.DbHepler{}
 	mysql, err := persistence.NewMySQL(
 		cf.MySQLConfig.Host,
 		cf.MySQLConfig.Port,
@@ -29,9 +29,19 @@ func main() {
 		logger.Error("数据库连接失败")
 	}
 	redis := cache.NewRedis(cf.RedisConfig.Host, cf.RedisConfig.Port, cf.RedisConfig.Username, cf.RedisConfig.Password, cf.RedisConfig.DB)
-	dbhepler.InitDbHepler(mysql, redis)
-	passages, _ := dbhepler.PassageRepsitory.GetPassages()
+	dbhelper.InitDbHepler(mysql, redis)
+	dbhelper.AutoMigrate()
+	passages, _ := dbhelper.PassageRepsitory.GetPassages()
 	for _, passage := range passages {
 		fmt.Println(passage)
 	}
+	tags, _ := dbhelper.TagsRepository.GetTags()
+
+	for _, tag := range tags {
+		fmt.Println(tag)
+	}
+
+	passages2, _ := dbhelper.PassageTagsRepsitory.GetTagPassages(9)
+	fmt.Println(passages2)
+
 }

@@ -12,10 +12,16 @@ type TagsRepositoryImpl struct {
 	rdb *cache.Redis
 }
 
-func (t *TagsRepositoryImpl) InitDb(db *gorm.DB, redis *cache.Redis) {
-	t.db = db
-	t.rdb = redis
+func (t *TagsRepositoryImpl) AutoMigrate() {
 	t.db.AutoMigrate(&entity.Tag{})
+}
+
+func (p *TagsRepositoryImpl) SetDb(db *gorm.DB) {
+	p.db = db
+}
+
+func (p *TagsRepositoryImpl) SetRedis(rdb *cache.Redis) {
+	p.rdb = rdb
 }
 func (t *TagsRepositoryImpl) GetTags() ([]entity.Tag, error) {
 	var tags []entity.Tag

@@ -12,12 +12,17 @@ type PassageTagsRepositoryImpl struct {
 	rdb *cache.Redis
 }
 
-func (p *PassageTagsRepositoryImpl) InitDb(db *gorm.DB, redis *cache.Redis) {
-	p.db = db
-	p.rdb = redis
+func (p *PassageTagsRepositoryImpl) AutoMigrate() {
 	p.db.AutoMigrate(&entity.PassageTags{})
 }
 
+func (p *PassageTagsRepositoryImpl) SetDb(db *gorm.DB) {
+	p.db = db
+}
+
+func (p *PassageTagsRepositoryImpl) SetRedis(rdb *cache.Redis) {
+	p.rdb = rdb
+}
 func (p *PassageTagsRepositoryImpl) GetPassageTags(passageId string) ([]string, error) {
 	var tags []string
 	err := p.db.Model(&entity.PassageTags{}).
@@ -29,11 +34,11 @@ func (p *PassageTagsRepositoryImpl) GetPassageTags(passageId string) ([]string, 
 	}
 	return tags, nil
 }
-func (p *PassageTagsRepositoryImpl) GetTagPassages(tagName string) ([]string, error) {
+func (p *PassageTagsRepositoryImpl) GetTagPassages(tagid int) ([]string, error) {
 	var passagesId []string
 	err := p.db.Model(&entity.PassageTags{}).
 		Select("passage_id").
-		Where("tag_name = ?", tagName).
+		Where("tag_id = ?", tagid).
 		Find(&passagesId).Error
 	if err != nil {
 		return nil, err

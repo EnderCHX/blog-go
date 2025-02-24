@@ -12,10 +12,16 @@ type PassageRepositoryImpl struct {
 	rdb *cache.Redis
 }
 
-func (p *PassageRepositoryImpl) InitDb(db *gorm.DB, redis *cache.Redis) {
-	p.db = db
-	p.rdb = redis
+func (p *PassageRepositoryImpl) AutoMigrate() {
 	p.db.AutoMigrate(&entity.Passage{})
+}
+
+func (p *PassageRepositoryImpl) SetDb(db *gorm.DB) {
+	p.db = db
+}
+
+func (p *PassageRepositoryImpl) SetRedis(rdb *cache.Redis) {
+	p.rdb = rdb
 }
 func (p *PassageRepositoryImpl) GetPassage(id string) (entity.Passage, error) {
 	var passage entity.Passage
