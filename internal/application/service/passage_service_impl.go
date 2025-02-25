@@ -17,11 +17,11 @@ func NewPassageServiceImpl(db persistence.DbHepler) PassageService {
 }
 
 func (p *PassageServiceImpl) GetPassages() ([]entity.Passage, error) {
-	return p.db.PassageRepsitory.GetPassages()
+	return p.db.PassageRepository.GetPassages()
 }
 
 func (p *PassageServiceImpl) GetPassagesByTag(tagname string) ([]string, error) {
-	passageIds, err := p.db.PassageTagsRepsitory.GetTagPassages(tagname)
+	passageIds, err := p.db.PassageTagsRepository.GetTagPassages(tagname)
 	if err != nil {
 		return nil, err
 	}
@@ -30,9 +30,9 @@ func (p *PassageServiceImpl) GetPassagesByTag(tagname string) ([]string, error) 
 }
 
 func (p *PassageServiceImpl) GetPassagesByDate(start, end time.Time) ([]string, error) {
-	return p.PassageRepository.GetPassagesByDate(start, end)
+	return p.db.PassageRepository.GetPassagesByDate(start, end)
 }
 
-func (p *PassageServiceImpl) GetPassageById() (entity.Passage, error) {
-	return p.PassageRepository.GetPassageById()
+func (p *PassageServiceImpl) GetPassageById(id string) (entity.Passage, error) {
+	return p.db.PassageRepository.GetPassage(id)
 }

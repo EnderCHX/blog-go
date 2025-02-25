@@ -1,12 +1,12 @@
 package main
 
 import (
-	"blog-go/internal/domain/entity"
 	"blog-go/internal/infrastructure/cache"
 	"blog-go/internal/infrastructure/config"
 	"blog-go/internal/infrastructure/log"
 	"blog-go/internal/infrastructure/persistence"
 	"fmt"
+	"time"
 
 	gormlogger "gorm.io/gorm/logger"
 )
@@ -32,21 +32,28 @@ func main() {
 	redis := cache.NewRedis(cf.RedisConfig.Host, cf.RedisConfig.Port, cf.RedisConfig.Username, cf.RedisConfig.Password, cf.RedisConfig.DB)
 	dbhelper.InitDbHepler(mysql, redis)
 	dbhelper.AutoMigrate()
-	passages, _ := dbhelper.PassageRepsitory.GetPassages()
-	for _, passage := range passages {
-		fmt.Println(passage)
-	}
+	passages, _ := dbhelper.PassageRepository.GetPassages()
+	logger.Info(fmt.Sprintf("%v", passages))
+
 	tags, _ := dbhelper.TagsRepository.GetTags()
+	logger.Info(fmt.Sprintf("%v", tags))
 
-	for _, tag := range tags {
-		fmt.Println(tag)
+	passages2, _ := dbhelper.PassageTagsRepository.GetTagPassages("22")
+	logger.Info(fmt.Sprintf("%v", passages2))
+
+	tags2, _ := dbhelper.PassageTagsRepository.GetPassageTags("7de19be4d5898f4abc022206954a8ad6")
+	logger.Info(fmt.Sprintf("%v", tags2))
+
+	id, _ := dbhelper.TagsRepository.GetTagId("openwrt")
+	tag, _ := dbhelper.TagsRepository.GetTagName(id)
+	logger.Info(fmt.Sprintf("%v %v", id, tag))
+
+	start, _ := time.Parse("2006-01-02", "2025-01-01")
+	passages3, err := dbhelper.PassageRepository.GetPassagesByDate(start, time.Now())
+	logger.Info(fmt.Sprintf("%v", passages3))
+	if err != nil {
+		logger.Error(err.Error())
 	}
-
-	passages2, _ := dbhelper.PassageTagsRepsitory.GetTagPassages("22")
-	fmt.Println(passages2)
-
-	dbhelper.PassageRepsitory.UpdatePassage(entity.Passage{
-		PassageId: "3fdac9744323e6c6659da09cf2c8b293",
-		Title:     "ajdjasdjadjasjdaojd",
-	})
+	for {
+	}
 }

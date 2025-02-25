@@ -9,5 +9,5 @@ type PassageService interface {
 	GetPassages() ([]entity.Passage, error)
 	GetPassagesByTag(tagname string) ([]string, error)
 	GetPassagesByDate(start, end time.Time) ([]string, error)
-	GetPassageById() (entity.Passage, error)
+	GetPassageById(id string) (entity.Passage, error)
 }

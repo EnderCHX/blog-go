@@ -11,11 +11,11 @@ import (
 )
 
 type DbHepler struct {
-	PassageRepsitory     PassageRepositoryImpl
-	PassageTagsRepsitory PassageTagsRepositoryImpl
-	TagsRepository       TagsRepositoryImpl
-	db                   *gorm.DB
-	redis                *cache.Redis
+	PassageRepository     PassageRepositoryImpl
+	PassageTagsRepository PassageTagsRepositoryImpl
+	TagsRepository        TagsRepositoryImpl
+	db                    *gorm.DB
+	redis                 *cache.Redis
 }
 
 func (h *DbHepler) InitDbHepler(mysql *gorm.DB, redis *cache.Redis) error {

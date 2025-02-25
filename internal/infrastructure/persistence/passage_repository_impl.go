@@ -67,6 +67,7 @@ func (p *PassageRepositoryImpl) GetPassages() ([]entity.Passage, error) {
 				"created_at",
 				"updated_at").
 			Where("deleted = ?", 0).
+			Order("created_at DESC").
 			Find(&passages).Error
 
 		if err2 != nil {
@@ -89,6 +90,24 @@ func (p *PassageRepositoryImpl) GetPassages() ([]entity.Passage, error) {
 	}
 
 	return passages, nil
+}
+
+func (p *PassageRepositoryImpl) GetPassagesByDate(start, end time.Time) ([]string, error) {
+	var passages []string
+	err := p.db.
+		Model(&entity.Passage{}).
+		Select("passage_id").
+		Where("deleted = ?", 0).
+		Where("created_at >= ?", start).
+		Where("created_at <= ?", end).
+		Order("created_at DESC").
+		Find(&passages).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return passages, err
 }
 
 func (p *PassageRepositoryImpl) AddPassage(passage entity.Passage) error {
