@@ -50,11 +50,7 @@ func (h *DbHepler) InitDbHepler(mysql *gorm.DB, redis *cache.Redis) error {
 			val.Addr().MethodByName("SetRedis").Call([]reflect.Value{reflect.ValueOf(redis)})
 		}
 	}
-	// {
-	// 	h.PassageRepsitory = PassageRepositoryImpl{db: mysql, rdb: redis}
-	// 	h.PassageTagsRepsitory = PassageTagsRepositoryImpl{db: mysql, rdb: redis}
-	// 	h.TagsRepository = TagsRepositoryImpl{db: mysql, rdb: redis}
-	// }
+
 	return nil
 }
 

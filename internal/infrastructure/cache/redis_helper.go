@@ -43,3 +43,7 @@ func (r *Redis) Set(key, value string, expire time.Duration) error {
 func (r *Redis) Get(key string) (string, error) {
 	return r.redisClient.Get(r.rctx, key).Result()
 }
+
+func (r *Redis) Del(key string) error {
+	return r.redisClient.Del(r.rctx, key).Err()
+}

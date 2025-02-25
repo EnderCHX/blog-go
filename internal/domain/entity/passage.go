@@ -1,7 +1,10 @@
 package entity
 
 import (
+	"encoding/json"
 	"time"
+
+	"github.com/EnderCHX/chx-tools-go/encrypt"
 )
 
 type Passage struct {
@@ -71,4 +74,14 @@ func WithDeleted(deleted bool) PassageOptions {
 	return func(p *Passage) {
 		p.Deleted = deleted
 	}
+}
+
+func (p *Passage) ToJson() string {
+	j, _ := json.Marshal(p)
+	return string(j)
+}
+
+func (p *Passage) GenPassageId() *Passage {
+	p.PassageId = encrypt.Md5(p.AuthorUsername + p.CreatedAt.String() + p.Title)
+	return p
 }

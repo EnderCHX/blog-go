@@ -9,5 +9,5 @@ type PassageRepository interface {
 	GetPassages() ([]entity.Passage, error)
 	AddPassage(passage entity.Passage) error
 	UpdatePassage(passage entity.Passage) error
-	DeletePassage(id int) error
+	DeletePassage(id string) error
 }

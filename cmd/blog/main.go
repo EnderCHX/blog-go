@@ -1,6 +1,7 @@
 package main
 
 import (
+	"blog-go/internal/domain/entity"
 	"blog-go/internal/infrastructure/cache"
 	"blog-go/internal/infrastructure/config"
 	"blog-go/internal/infrastructure/log"
@@ -41,7 +42,11 @@ func main() {
 		fmt.Println(tag)
 	}
 
-	passages2, _ := dbhelper.PassageTagsRepsitory.GetTagPassages(9)
+	passages2, _ := dbhelper.PassageTagsRepsitory.GetTagPassages("22")
 	fmt.Println(passages2)
 
+	dbhelper.PassageRepsitory.UpdatePassage(entity.Passage{
+		PassageId: "3fdac9744323e6c6659da09cf2c8b293",
+		Title:     "ajdjasdjadjasjdaojd",
+	})
 }

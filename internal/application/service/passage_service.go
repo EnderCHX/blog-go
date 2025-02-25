@@ -7,7 +7,7 @@ import (
 
 type PassageService interface {
 	GetPassages() ([]entity.Passage, error)
-	GetPassagesByTag(tagname string) ([]entity.Passage, error)
-	GetPassagesByDate(start, end time.Time) ([]entity.Passage, error)
+	GetPassagesByTag(tagname string) ([]string, error)
+	GetPassagesByDate(start, end time.Time) ([]string, error)
 	GetPassageById() (entity.Passage, error)
 }
