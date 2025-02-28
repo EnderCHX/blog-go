@@ -1,40 +1,43 @@
 package interfaces
 
-import "github.com/gin-gonic/gin"
+import (
+	"blog-go/internal/interfaces/route"
+
+	"github.com/gin-gonic/gin"
+)
 
 type Server interface {
 	Start()
 }
 
 type HttpServer struct {
-	router *gin.Engine
-	ip     string
-	port   string
-	level  string
+	router  *gin.Engine
+	routes  []route.RouteRegister
+	midware []gin.HandlerFunc
+	ip      string
+	port    string
+	level   string
 }
 
-func NewHttpServer(ip, port, level string, middleware ...gin.HandlerFunc) *HttpServer {
+func NewHttpServer(ip, port, level string, middleware []gin.HandlerFunc, routes ...route.RouteRegister) *HttpServer {
 	gin.SetMode(level)
 	r := gin.New()
-	r.Use(middleware...)
 	return &HttpServer{
-		router: r,
-		ip:     ip,
-		port:   port,
-		level:  level,
+		router:  r,
+		ip:      ip,
+		port:    port,
+		level:   level,
+		midware: middleware,
+		routes:  routes,
 	}
 }
 
-func (s *HttpServer) AddRouter(method, path string, handler ...gin.HandlerFunc) *HttpServer {
-	s.router.Handle(method, path, handler...)
-	return s
-}
+func (s *HttpServer) Start() {
+	s.router.Use(s.midware...)
 
-func (s *HttpServer) GetRouter() *gin.Engine {
-	return s.router
-}
+	for _, r := range s.routes {
+		r.Register(s.router)
+	}
 
-func (s *HttpServer) Start() *HttpServer {
 	s.router.Run(s.ip + ":" + s.port)
-	return s
 }

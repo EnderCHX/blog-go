@@ -76,14 +76,32 @@ func (p *PassageDTO) ToPassage() entity.Passage {
 		entity.WithUpdatedAt(p.UpdatedAt),
 	)
 }
+func PassageToDTO(passages entity.Passage) PassageDTO {
+	return *NewPassageDTO(
+		WithPassageId(passages.PassageId),
+		WithAuthorUsername(passages.AuthorUsername),
+		WithContent(passages.Content),
+		WithTitle(passages.Title),
+		WithCreatedAt(passages.CreatedAt),
+		WithUpdatedAt(passages.UpdatedAt),
+	)
+}
 
-func PassageToDTO(passage entity.Passage) *PassageDTO {
-	return NewPassageDTO(
-		WithPassageId(passage.PassageId),
-		WithAuthorUsername(passage.AuthorUsername),
-		WithContent(passage.Content),
-		WithTitle(passage.Title),
-		WithCreatedAt(passage.CreatedAt),
-		WithUpdatedAt(passage.UpdatedAt),
+func PassagesToDTO(passages []entity.Passage) []PassageDTO {
+	var passageDTOs []PassageDTO
+	for _, passage := range passages {
+		passageDTOs = append(passageDTOs, PassageToDTO(passage))
+	}
+	return passageDTOs
+}
+
+func DtoToPassage(passagedto PassageDTO) entity.Passage {
+	return *entity.NewPassage(
+		entity.WithPassageId(passagedto.PassageId),
+		entity.WithAuthorUsername(passagedto.AuthorUsername),
+		entity.WithContent(passagedto.Content),
+		entity.WithTitle(passagedto.Title),
+		entity.WithCreatedAt(passagedto.CreatedAt),
+		entity.WithUpdatedAt(passagedto.UpdatedAt),
 	)
 }

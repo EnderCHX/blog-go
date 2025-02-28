@@ -61,6 +61,23 @@ func (p *PassageTagsRepositoryImpl) GetPassageTags(passageId string) ([]string, 
 	return tags, nil
 }
 
+func (p *PassageTagsRepositoryImpl) AddPassageTags(passageId string, tags []string) error {
+	var passageTags []entity.PassageTags
+	for _, tag := range tags {
+		var tagid int
+		p.db.Model(&entity.Tag{}).
+			Select("tag_id").
+			Where("tag_name = ?", tag).
+			Pluck("tag_id", &tagid)
+
+		passageTags = append(passageTags, entity.PassageTags{
+			PassageId: passageId,
+			TagId:     tagid,
+		})
+	}
+
+	return p.db.Create(&passageTags).Error
+}
 func (p *PassageTagsRepositoryImpl) GetTagPassages(tagName string) ([]string, error) {
 	var passagesId []string
 

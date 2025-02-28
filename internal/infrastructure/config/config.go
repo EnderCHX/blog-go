@@ -39,12 +39,20 @@ type SecretKeys struct {
 	PasswdSecret  string `json:"passwd_secret"`
 }
 
+type MailConfig struct {
+	Host     string `json:"host"`
+	Port     string `json:"port"`
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
 type Config struct {
 	MySQLConfig MySQL      `json:"mysql_config"`
 	RedisConfig Redis      `json:"redis_config"`
 	ApiConfig   ApiConfig  `json:"api_config"`
 	LogCongfig  LogCongfig `json:"log_config"`
 	SecretKeys  SecretKeys `json:"secret_keys"`
+	MailConfig  MailConfig `json:"mail_config"`
 }
 
 var ConfigContext Config
@@ -77,6 +85,12 @@ var DefaultConfig = Config{
 		RefreshSecret: "refresh_secret",
 		AccessSecret:  "access_secret",
 		PasswdSecret:  "passwd_secret",
+	},
+	MailConfig: MailConfig{
+		Host:     "smtp.qq.com",
+		Port:     "465",
+		Username: "xxxxxxxx@qq.com",
+		Password: "xxxxxxxxxxxxxxxx",
 	},
 }
 

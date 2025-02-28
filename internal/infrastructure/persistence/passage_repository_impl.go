@@ -36,7 +36,7 @@ func (p *PassageRepositoryImpl) GetPassage(id string) (entity.Passage, error) {
 	if err != nil {
 		err2 := p.db.Where("passage_id = ?", id).Where("deleted = ?", 0).First(&passage).Error
 		if err2 != nil {
-			return passage, err
+			return passage, err2
 		}
 
 		if err == redis.Nil {

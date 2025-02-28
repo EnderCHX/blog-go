@@ -6,9 +6,12 @@ import (
 	"blog-go/internal/infrastructure/config"
 	"blog-go/internal/infrastructure/log"
 	"blog-go/internal/infrastructure/persistence"
-	"fmt"
-	"time"
+	"blog-go/internal/interfaces"
+	"blog-go/internal/interfaces/handle"
+	"blog-go/internal/interfaces/midware"
+	"blog-go/internal/interfaces/route"
 
+	"github.com/gin-gonic/gin"
 	gormlogger "gorm.io/gorm/logger"
 )
 
@@ -19,7 +22,7 @@ func main() {
 	log.Setup(cf.LogCongfig.LogPath, cf.LogCongfig.LogLevel)
 	logger := log.GetLogger()
 
-	dbhelper := persistence.DbHepler{}
+	dbhelper := &persistence.DbHepler{}
 	mysql, err := persistence.NewMySQL(
 		cf.MySQLConfig.Host,
 		cf.MySQLConfig.Port,
@@ -34,55 +37,15 @@ func main() {
 	dbhelper.InitDbHepler(mysql, redis)
 	dbhelper.AutoMigrate()
 
-	passageService := service.NewPassageServiceImpl(dbhelper)
+	//m := mail.NewMail(cf.MailConfig.Host, cf.MailConfig.Port, cf.MailConfig.Username, cf.MailConfig.Password)
 
-	passages, err := passageService.GetPassages()
-	if err != nil {
-		logger.Error(err.Error())
-	}
-	logger.Info(fmt.Sprintf("%v", passages))
+	passageHandle := handle.NewPassageHandle(service.NewPassageServiceImpl(dbhelper), logger)
+	tagHandle := handle.NewTagHandle(service.NewTagServiceImpl(dbhelper), logger)
 
-	tag, err := passageService.GetPassagesByTag("openwrt")
-	if err != nil {
-		logger.Error(err.Error())
-	}
-	logger.Info(fmt.Sprintf("%v", tag))
-
-	passage, err := passageService.GetPassageById(tag[0])
-	if err != nil {
-		logger.Error(err.Error())
-	}
-	logger.Info(fmt.Sprintf("%v", passage))
-
-	passages2, err := passageService.GetPassagesByDate(time.Now().AddDate(-1, 0, 0), time.Now())
-	if err != nil {
-		logger.Error(err.Error())
-	}
-	logger.Info(fmt.Sprintf("%v", passages2))
-	for {
-
-	}
-
-	// passages, _ := dbhelper.PassageRepository.GetPassages()
-	// logger.Info(fmt.Sprintf("%v", passages))
-
-	// tags, _ := dbhelper.TagsRepository.GetTags()
-	// logger.Info(fmt.Sprintf("%v", tags))
-
-	// passages2, _ := dbhelper.PassageTagsRepository.GetTagPassages("22")
-	// logger.Info(fmt.Sprintf("%v", passages2))
-
-	// tags2, _ := dbhelper.PassageTagsRepository.GetPassageTags("7de19be4d5898f4abc022206954a8ad6")
-	// logger.Info(fmt.Sprintf("%v", tags2))
-
-	// id, _ := dbhelper.TagsRepository.GetTagId("openwrt")
-	// tag, _ := dbhelper.TagsRepository.GetTagName(id)
-	// logger.Info(fmt.Sprintf("%v %v", id, tag))
-
-	// start, _ := time.Parse("2006-01-02", "2025-01-01")
-	// passages3, err := dbhelper.PassageRepository.GetPassagesByDate(start, time.Now())
-	// logger.Info(fmt.Sprintf("%v", passages3))
-	// if err != nil {
-	// 	logger.Error(err.Error())
-	// }
+	server := interfaces.NewHttpServer(cf.ApiConfig.Host, cf.ApiConfig.Port, cf.ApiConfig.Mode,
+		[]gin.HandlerFunc{log.GinZapLogger(), gin.Recovery(), midware.Cors(), midware.Auth(cf)},
+		route.NewPassageRouteRegister(passageHandle), route.NewTagRouteRegister(tagHandle),
+	)
+	//go m.SendMail("c@chxc.cc", "服务器启动", "api服务器启动")
+	server.Start()
 }
