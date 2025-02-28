@@ -9,7 +9,7 @@ import (
 
 func Cors() gin.HandlerFunc { //跨域中间件
 	corss := cors.New(cors.Config{
-		AllowOrigins:     []string{"*"},
+		AllowOrigins:     []string{"hrbeu.top", "localhost", "blog.hrbeu.top"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
