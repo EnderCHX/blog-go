@@ -10,15 +10,21 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-type DbHepler struct {
+type AutoDbHelper interface {
+	AutoMigrate()
+	SetDb(db *gorm.DB)
+	SetRedis(rdb *cache.Redis)
+}
+type DbHelper struct {
 	PassageRepository     PassageRepositoryImpl
 	PassageTagsRepository PassageTagsRepositoryImpl
 	TagsRepository        TagsRepositoryImpl
+	CommentRepository     CommentRepositoryImpl
 	db                    *gorm.DB
 	redis                 *cache.Redis
 }
 
-func (h *DbHepler) InitDbHepler(mysql *gorm.DB, redis *cache.Redis) error {
+func (h *DbHelper) InitDbHelper(mysql *gorm.DB, redis *cache.Redis) error {
 	h.db = mysql
 	h.redis = redis
 
@@ -54,7 +60,7 @@ func (h *DbHepler) InitDbHepler(mysql *gorm.DB, redis *cache.Redis) error {
 	return nil
 }
 
-func (h *DbHepler) AutoMigrate() {
+func (h *DbHelper) AutoMigrate() {
 	v := reflect.ValueOf(h).Elem() // 获取结构体反射对象
 	typ := v.Type()
 
@@ -86,8 +92,8 @@ func (h *DbHepler) AutoMigrate() {
 	}
 }
 
-func NewMySQL(host, port, username, password, db_name string, logger logger.Interface) (*gorm.DB, error) {
-	dsn := username + ":" + password + "@tcp(" + host + ":" + port + ")/" + db_name + "?charset=utf8mb4&parseTime=True&loc=Local"
+func NewMySQL(host, port, username, password, dbName string, logger logger.Interface) (*gorm.DB, error) {
+	dsn := username + ":" + password + "@tcp(" + host + ":" + port + ")/" + dbName + "?charset=utf8mb4&parseTime=True&loc=Local"
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
 		Logger: logger,
 	})

@@ -15,12 +15,6 @@ func NewUserPermissions(option ...UserPermissionsOptions) *UserPermissions {
 	return userPermissions
 }
 
-func WithUsername(username string) UserPermissionsOptions {
-	return func(userPermissions *UserPermissions) {
-		userPermissions.Username = username
-	}
-}
-
 func WithPermissions(permissions string) UserPermissionsOptions {
 	return func(userPermissions *UserPermissions) {
 		userPermissions.Permissions = permissions

@@ -7,10 +7,10 @@ import (
 )
 
 type PassageServiceImpl struct {
-	db *persistence.DbHepler
+	db *persistence.DbHelper
 }
 
-func NewPassageServiceImpl(db *persistence.DbHepler) PassageService {
+func NewPassageServiceImpl(db *persistence.DbHelper) PassageService {
 	return &PassageServiceImpl{
 		db: db,
 	}

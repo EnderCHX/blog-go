@@ -6,10 +6,10 @@ import (
 )
 
 type TagServiceImpl struct {
-	db *persistence.DbHepler
+	db *persistence.DbHelper
 }
 
-func NewTagServiceImpl(db *persistence.DbHepler) TagService {
+func NewTagServiceImpl(db *persistence.DbHelper) TagService {
 	return &TagServiceImpl{
 		db: db,
 	}

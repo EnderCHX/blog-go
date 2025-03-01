@@ -22,7 +22,7 @@ func main() {
 	log.Setup(cf.LogCongfig.LogPath, cf.LogCongfig.LogLevel)
 	logger := log.GetLogger()
 
-	dbhelper := &persistence.DbHepler{}
+	dbHelper := &persistence.DbHelper{}
 	mysql, err := persistence.NewMySQL(
 		cf.MySQLConfig.Host,
 		cf.MySQLConfig.Port,
@@ -34,17 +34,20 @@ func main() {
 		logger.Error("数据库连接失败")
 	}
 	redis := cache.NewRedis(cf.RedisConfig.Host, cf.RedisConfig.Port, cf.RedisConfig.Username, cf.RedisConfig.Password, cf.RedisConfig.DB)
-	dbhelper.InitDbHepler(mysql, redis)
-	dbhelper.AutoMigrate()
+	dbHelper.InitDbHelper(mysql, redis)
+	dbHelper.AutoMigrate()
 
 	//m := mail.NewMail(cf.MailConfig.Host, cf.MailConfig.Port, cf.MailConfig.Username, cf.MailConfig.Password)
 
-	passageHandle := handle.NewPassageHandle(service.NewPassageServiceImpl(dbhelper), logger)
-	tagHandle := handle.NewTagHandle(service.NewTagServiceImpl(dbhelper), logger)
+	passageHandle := handle.NewPassageHandle(service.NewPassageServiceImpl(dbHelper), logger)
+	tagHandle := handle.NewTagHandle(service.NewTagServiceImpl(dbHelper), logger)
+	commentHandle := handle.NewCommentHandle(service.NewCommentServiceImpl(dbHelper))
 
 	server := interfaces.NewHttpServer(cf.ApiConfig.Host, cf.ApiConfig.Port, cf.ApiConfig.Mode,
 		[]gin.HandlerFunc{log.GinZapLogger(), gin.Recovery(), midware.Cors(), midware.Auth(cf)},
-		route.NewPassageRouteRegister(passageHandle), route.NewTagRouteRegister(tagHandle),
+		route.NewPassageRouteRegister(passageHandle),
+		route.NewTagRouteRegister(tagHandle),
+		route.NewCommentRouteRegister(commentHandle),
 	)
 	//go m.SendMail("c@chxc.cc", "服务器启动", "api服务器启动")
 	server.Start()
