@@ -4,7 +4,7 @@ go 1.23.4
 
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
-	github.com/EnderCHX/chx-tools-go v0.0.0-20250120164949-fbe794f45964 // indirect
+	github.com/EnderCHX/chx-tools-go v0.0.0-20250303142636-f556f2de3413 // indirect
 	github.com/bytedance/sonic v1.12.6 // indirect
 	github.com/bytedance/sonic/loader v0.2.1 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect

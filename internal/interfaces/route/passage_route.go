@@ -2,6 +2,7 @@ package route
 
 import (
 	"blog-go/internal/interfaces/handle"
+	"blog-go/internal/interfaces/midware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -22,5 +23,6 @@ func (r *PassageRouteRegister) Register(router *gin.Engine) {
 	// r.router.GET("/posts/tags", r.passageHandle.GetTags)
 	router.GET("/posts/tags/:tagname", r.passageHandle.GetPassagesByTag)
 	router.GET("/post/:id", r.passageHandle.GetPassage)
-	router.POST("/newpost", r.passageHandle.AddPassage)
+
+	router.POST("/newpost", midware.Permission(), r.passageHandle.AddPassage)
 }

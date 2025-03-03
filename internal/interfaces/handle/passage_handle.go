@@ -35,11 +35,11 @@ func (h *PassageHandle) GetPassage(c *gin.Context) {
 		h.logger.Error("[PassageService] 获取文章 "+passageId+" 失败", zap.String("error", err.Error()))
 
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(response.NotFound(nil))
+			c.JSON(response.Default(200, false, response.PASSAGE_NOT_FOUND, "文章不存在", nil))
 			return
 		}
 
-		c.JSON(response.InternalServerError(nil))
+		c.JSON(response.Default(200, false, response.SERVER_ERROR, "服务器错误", nil))
 		return
 	}
 
@@ -52,7 +52,7 @@ func (h *PassageHandle) GetPassages(c *gin.Context) {
 
 	if err != nil {
 		h.logger.Error("[PassageService] 获取文章列表失败", zap.String("error", err.Error()))
-		c.JSON(response.InternalServerError(nil))
+		c.JSON(response.Default(200, false, response.SERVER_ERROR, "服务器错误", nil))
 		return
 	}
 
@@ -66,7 +66,7 @@ func (h *PassageHandle) GetPassagesByTag(c *gin.Context) {
 
 	if err != nil {
 		h.logger.Error("[PassageService] 获取文章列表失败", zap.String("error", err.Error()))
-		c.JSON(response.InternalServerError(nil))
+		c.JSON(response.Default(200, false, response.SERVER_ERROR, "服务器错误", nil))
 	}
 
 	c.JSON(response.Success(passages))
@@ -76,20 +76,20 @@ func (h *PassageHandle) GetPassagesByTag(c *gin.Context) {
 func (h *PassageHandle) GetPassagesByDate(c *gin.Context) {
 	start, err := time.Parse("2006-01-02", c.Param("start"))
 	if err != nil {
-		c.JSON(response.BadRequest(nil))
+		c.JSON(response.Default(200, false, response.PASSAGE_DATE_FORMAT_ERROR, "日期格式错误", nil))
 		return
 	}
 
 	end, err := time.Parse("2006-01-02", c.Param("end"))
 	if err != nil {
-		c.JSON(response.BadRequest(nil))
+		c.JSON(response.Default(200, false, response.PASSAGE_DATE_FORMAT_ERROR, "日期格式错误", nil))
 		return
 	}
 
 	passages, err := h.passageService.GetPassagesByDate(start, end)
 	if err != nil {
 		h.logger.Error("[PassageService] 获取文章列表失败", zap.String("error", err.Error()))
-		c.JSON(response.InternalServerError(nil))
+		c.JSON(response.Default(200, false, response.SERVER_ERROR, "服务器错误", nil))
 	}
 
 	c.JSON(response.Success(passages))
@@ -119,7 +119,7 @@ func (h *PassageHandle) AddPassage(c *gin.Context) {
 	err := h.passageService.AddPassage(passage)
 
 	if err != nil {
-		c.JSON(response.InternalServerError(nil))
+		c.JSON(response.Default(200, false, response.SERVER_ERROR, "服务器错误", nil))
 		return
 	}
 
