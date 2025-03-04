@@ -19,6 +19,8 @@ func Auth(config config.Config) gin.HandlerFunc {
 				c.Abort()
 			} else {
 				c.Set("claims", claims)
+				c.Set("username", claims.Username)
+				c.Set("role", claims.Role)
 				c.Next()
 			}
 		}

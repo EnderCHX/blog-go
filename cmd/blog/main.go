@@ -5,6 +5,7 @@ import (
 	"blog-go/internal/infrastructure/cache"
 	"blog-go/internal/infrastructure/config"
 	"blog-go/internal/infrastructure/log"
+	"blog-go/internal/infrastructure/mail"
 	"blog-go/internal/infrastructure/persistence"
 	"blog-go/internal/interfaces"
 	"blog-go/internal/interfaces/handle"
@@ -37,11 +38,11 @@ func main() {
 	dbHelper.InitDbHelper(mysql, redis)
 	dbHelper.AutoMigrate()
 
-	//m := mail.NewMail(cf.MailConfig.Host, cf.MailConfig.Port, cf.MailConfig.Username, cf.MailConfig.Password)
+	m := mail.NewMail(cf.MailConfig.Host, cf.MailConfig.Port, cf.MailConfig.Username, cf.MailConfig.Password)
 
 	passageHandle := handle.NewPassageHandle(service.NewPassageServiceImpl(dbHelper), logger)
 	tagHandle := handle.NewTagHandle(service.NewTagServiceImpl(dbHelper), logger)
-	commentHandle := handle.NewCommentHandle(service.NewCommentServiceImpl(dbHelper))
+	commentHandle := handle.NewCommentHandle(service.NewCommentServiceImpl(dbHelper), service.NewUserServiceImpl(dbHelper, m, cf.ApiConfig.UserApiUrl), logger)
 
 	server := interfaces.NewHttpServer(cf.ApiConfig.Host, cf.ApiConfig.Port, cf.ApiConfig.Mode,
 		[]gin.HandlerFunc{log.GinZapLogger(), gin.Recovery(), midware.Cors(), midware.Auth(cf)},

@@ -1,7 +1,6 @@
 package service
 
-import "blog-go/internal/domain/entity"
-
 type UserService interface {
-	GetUserInfo(username string) (entity.User, error)
+	SavaEmail(username, accessToken string) error
+	SendEmail(username, subject, body string) error
 }

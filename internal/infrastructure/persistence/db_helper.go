@@ -20,6 +20,7 @@ type DbHelper struct {
 	PassageTagsRepository PassageTagsRepositoryImpl
 	TagsRepository        TagsRepositoryImpl
 	CommentRepository     CommentRepositoryImpl
+	UserRepository        UserRepositoryImpl
 	db                    *gorm.DB
 	redis                 *cache.Redis
 }

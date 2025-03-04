@@ -6,7 +6,6 @@ import (
 	"blog-go/internal/domain/entity"
 	"blog-go/internal/interfaces/response"
 	"errors"
-	"github.com/EnderCHX/chx-tools-go/auth"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -96,8 +95,8 @@ func (h *PassageHandle) GetPassagesByDate(c *gin.Context) {
 }
 
 func (h *PassageHandle) AddPassage(c *gin.Context) {
-	claims, _ := c.Get("claims")
-	if claims == nil {
+	username, _ := c.Get("username")
+	if username == nil {
 		c.JSON(response.Unauthorized(nil))
 		return
 	}
@@ -111,7 +110,7 @@ func (h *PassageHandle) AddPassage(c *gin.Context) {
 	passage := *entity.NewPassage(
 		entity.WithTitle(passageDTO.Title),
 		entity.WithContent(passageDTO.Content),
-		entity.WithAuthorUsername(claims.(*auth.JWTPayload).Username),
+		entity.WithAuthorUsername(username.(string)),
 		entity.WithCreatedAt(time.Now()),
 		entity.WithUpdatedAt(time.Now()),
 	).GenPassageId()

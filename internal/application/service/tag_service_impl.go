@@ -9,6 +9,10 @@ type TagServiceImpl struct {
 	db *persistence.DbHelper
 }
 
+func (t *TagServiceImpl) ServiceName() string {
+	return "TagService"
+}
+
 func NewTagServiceImpl(db *persistence.DbHelper) TagService {
 	return &TagServiceImpl{
 		db: db,

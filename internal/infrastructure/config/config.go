@@ -23,9 +23,10 @@ type MySQL struct {
 }
 
 type ApiConfig struct {
-	Host string `json:"host"`
-	Port string `json:"port"`
-	Mode string `json:"mode"`
+	Host       string `json:"host"`
+	Port       string `json:"port"`
+	Mode       string `json:"mode"`
+	UserApiUrl string `json:"user_api_url"`
 }
 
 type LogCongfig struct {
@@ -73,9 +74,10 @@ var DefaultConfig = Config{
 		DB:       0,
 	},
 	ApiConfig: ApiConfig{
-		Host: "0.0.0.0",
-		Port: "1314",
-		Mode: "release",
+		Host:       "0.0.0.0",
+		Port:       "1314",
+		Mode:       "release",
+		UserApiUrl: "https://api.passport.hrbeu.top",
 	},
 	LogCongfig: LogCongfig{
 		LogLevel: "debug",

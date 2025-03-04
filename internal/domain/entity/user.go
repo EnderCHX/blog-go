@@ -7,20 +7,14 @@ import (
 )
 
 type User struct {
-	Username  string `json:"username" gorm:"primaryKey;index;not null"`
-	Role      string `json:"role" gorm:"not null"`
-	Email     string `json:"email" gorm:"not null"`
-	Avatar    string `json:"avatar"`
-	Signature string `json:"signature"`
+	Username string `json:"username" gorm:"primaryKey;index;not null"`
+	Email    string `json:"email" gorm:"not null"`
 }
 
-func NewUser(username, role, email, avatar, signature string) *User {
+func NewUser(username, email string) *User {
 	return &User{
-		Username:  username,
-		Role:      role,
-		Email:     email,
-		Avatar:    avatar,
-		Signature: signature,
+		Username: username,
+		Email:    email,
 	}
 }
 
@@ -34,7 +28,7 @@ const (
 )
 
 func (u *User) GetEmail(apiUrl, accessToken string) (string, error) {
-	req, err := http.NewRequest("GET", apiUrl, nil)
+	req, err := http.NewRequest("GET", apiUrl+"/user/info", nil)
 	req.Header.Set("Authorization", "Bearer "+accessToken)
 	if err != nil {
 		return "", nil

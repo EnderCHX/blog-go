@@ -4,17 +4,21 @@ import (
 	"blog-go/internal/application/service"
 	"blog-go/internal/domain/dto"
 	"blog-go/internal/interfaces/response"
-	"github.com/EnderCHX/chx-tools-go/auth"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 type CommentHandle struct {
 	CommentService service.CommentService
+	UserService    service.UserService
+	logger         *zap.Logger
 }
 
-func NewCommentHandle(commentService service.CommentService) *CommentHandle {
+func NewCommentHandle(commentService service.CommentService, userService service.UserService, logger *zap.Logger) *CommentHandle {
 	return &CommentHandle{
 		CommentService: commentService,
+		UserService:    userService,
+		logger:         logger,
 	}
 }
 
@@ -56,15 +60,24 @@ func (c *CommentHandle) GetCommentById(ctx *gin.Context) {
 
 // "/newcomment"
 func (c *CommentHandle) AddComment(ctx *gin.Context) {
-	claims, ok := ctx.Get("claims")
+	username, ok := ctx.Get("username")
 	if !ok {
 		ctx.JSON(response.Unauthorized(nil))
 		return
 	}
 
+	go func() {
+		token := ctx.GetHeader("Authorization")
+		token = token[7:]
+		err := c.UserService.SavaEmail(username.(string), token)
+		if err != nil {
+			c.logger.Error("SavaEmail error", zap.Error(err))
+		}
+	}()
+
 	var comment dto.CommentAddDTO
 	ctx.BindJSON(&comment)
-	comment.Username = claims.(*auth.JWTPayload).Username
+	comment.Username = username.(string)
 
 	commentId, err := c.CommentService.AddComment(comment)
 	if err != nil {
@@ -72,6 +85,26 @@ func (c *CommentHandle) AddComment(ctx *gin.Context) {
 		return
 	}
 
+	go func() {
+		replyComment, err := c.CommentService.GetCommentById(comment.ReplyCommentId)
+		if err != nil {
+			c.logger.Error("GetCommentById error", zap.Error(err))
+			return
+		}
+		if replyComment.Username != "" {
+			err = c.UserService.SendEmail(replyComment.Username, "回复通知",
+				"<p>您收到一条回复通知，请及时查看。</p>"+
+					"<p>回复人："+comment.Username+"</p>"+
+					"<p>"+comment.Content+"</p>",
+			)
+			if err != nil {
+				c.logger.Error("SendEmail error", zap.Error(err))
+				return
+			}
+		}
+	}()
+
+	c.logger.Info("AddComment", zap.String("comment", comment.Content))
 	ctx.JSON(response.Success(gin.H{
 		"comment_id": commentId,
 		"":           comment,

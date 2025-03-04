@@ -3,15 +3,20 @@ package midware
 import (
 	"blog-go/internal/domain/entity"
 	"blog-go/internal/interfaces/response"
-	"github.com/EnderCHX/chx-tools-go/auth"
 	"github.com/gin-gonic/gin"
 )
 
 func Permission() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		claims, _ := c.Get("claims")
 
-		role := claims.(*auth.JWTPayload).Role
+		role, ok := c.Get("role")
+		if !ok {
+			c.JSON(response.Unauthorized(nil))
+			c.Abort()
+			return
+		}
+
+		role = role.(string)
 
 		if c.FullPath() == "/newpost" &&
 			(role == entity.ADMIN || role == entity.EDITOR || role == entity.AUTHOR) {

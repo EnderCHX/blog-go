@@ -10,6 +10,10 @@ type CommentServiceImpl struct {
 	db *persistence.DbHelper
 }
 
+func (c *CommentServiceImpl) ServiceName() string {
+	return "CommentService"
+}
+
 func NewCommentServiceImpl(db *persistence.DbHelper) CommentService {
 	return &CommentServiceImpl{db: db}
 }

@@ -10,6 +10,10 @@ type PassageServiceImpl struct {
 	db *persistence.DbHelper
 }
 
+func (p *PassageServiceImpl) ServiceName() string {
+	return "PassageService"
+}
+
 func NewPassageServiceImpl(db *persistence.DbHelper) PassageService {
 	return &PassageServiceImpl{
 		db: db,
