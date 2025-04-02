@@ -21,6 +21,7 @@ type DbHelper struct {
 	TagsRepository        TagsRepositoryImpl
 	CommentRepository     CommentRepositoryImpl
 	UserRepository        UserRepositoryImpl
+	VisitRepository       VisitRepositoryImpl
 	db                    *gorm.DB
 	redis                 *cache.Redis
 }

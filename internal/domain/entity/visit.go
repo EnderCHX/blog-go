@@ -1,16 +1,13 @@
 package entity
 
-import "sync"
-
-type PathCount struct {
-	FullPath string `json:"full_path" gorm:"primaryKey"`
-	Count    int    `json:"count"`
-	Lock     sync.Mutex
-}
-
-type IpCount struct {
-	Ip       string `json:"ip" gorm:"primaryKey"`
-	Count    int    `json:"count"`
-	FullPath string `json:"full_path"`
-	Lock     sync.Mutex
+type Visit struct {
+	Path      string `json:"path"`
+	FullPath  string `json:"full_path"`
+	Ip        string `json:"ip"`
+	Referer   string `json:"referer"`
+	Username  string `json:"username"`
+	UserAgent string `json:"user_agent"`
+	Browser   string `json:"browser"`
+	Platform  string `json:"platform"`
+	OS        string `json:"os"`
 }
