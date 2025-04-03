@@ -45,7 +45,7 @@ func main() {
 	commentHandle := handle.NewCommentHandle(service.NewCommentServiceImpl(dbHelper), service.NewUserServiceImpl(dbHelper, m, cf.ApiConfig.UserApiUrl), logger)
 
 	server := interfaces.NewHttpServer(cf.ApiConfig.Host, cf.ApiConfig.Port, cf.ApiConfig.Mode,
-		[]gin.HandlerFunc{log.GinZapLogger(), gin.Recovery(), midware.CountVisitor(dbHelper), midware.Cors(), midware.Auth(cf)},
+		[]gin.HandlerFunc{log.GinZapLogger(), gin.Recovery(), midware.CountVisitor(dbHelper, cf), midware.Cors(), midware.Auth(cf)},
 		route.NewPassageRouteRegister(passageHandle),
 		route.NewTagRouteRegister(tagHandle),
 		route.NewCommentRouteRegister(commentHandle),
