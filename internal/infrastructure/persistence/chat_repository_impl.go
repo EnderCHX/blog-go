@@ -29,7 +29,7 @@ func (c *ChatRepositoryImpl) AddChat(chat *entity.Chat) error {
 
 func (c *ChatRepositoryImpl) GetAll() ([]entity.Chat, error) {
 	var chats []entity.Chat
-	err := c.db.Limit(20).Where("deleted = ?", false).Order("created_at desc").Find(&chats).Error
+	err := c.db.Limit(20).Where("deleted = ?", false).Order("created_at").Find(&chats).Error
 
 	if err != nil {
 		return nil, err
