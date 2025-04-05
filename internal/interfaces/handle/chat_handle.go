@@ -4,6 +4,7 @@ import (
 	"blog-go/internal/application/service"
 	"blog-go/internal/domain/entity"
 	"blog-go/internal/interfaces/response"
+	"context"
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
@@ -152,28 +153,43 @@ func (client *Client) heartBeat() {
 		}
 		hub.unregister <- client
 	}()
-	ticker1 := time.NewTicker(time.Second * 120)
-	defer ticker1.Stop()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	heartbeattime := time.Second * 60
+	timeout := time.Second * 90
+	heartBeatTicker := time.NewTicker(heartbeattime)
+	timeoutTicker := time.NewTicker(timeout)
+	defer heartBeatTicker.Stop()
+	defer timeoutTicker.Stop()
+
+	go func() {
+		for {
+			select {
+			case ctrl := <-client.ctrl:
+				if ctrl.Option == "pong" {
+					client.logger.Info("[CHAT] 响应心跳 " + client.username)
+					timeoutTicker.Reset(timeout)
+				}
+			case <-ctx.Done():
+				return
+			}
+		}
+	}()
+
 	for {
 		select {
-		case <-ticker1.C:
+		case <-heartBeatTicker.C:
 			client.send <- func() (data []byte) {
 				data, _ = json.Marshal(Msg{Option: "ping"})
 				return
 			}()
 			client.logger.Info("[CHAT] 发送心跳 -> " + client.username)
-			ticker2 := time.NewTicker(time.Second * 90)
-			defer ticker2.Stop()
-			select {
-			case <-ticker2.C:
-				client.logger.Info("[CHAT] 心跳失败 -> " + client.username)
-				return
-			case ctrl := <-client.ctrl:
-				if ctrl.Option == "pong" {
-					client.logger.Info("[CHAT] 用户 " + client.username + " 响应心跳")
-					continue
-				}
-			}
+		case <-timeoutTicker.C:
+			client.logger.Info("[CHAT] 心跳超时 " + client.username)
+			return
+		case <-ctx.Done():
+			return
 		}
 	}
 }
