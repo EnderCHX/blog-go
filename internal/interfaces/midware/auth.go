@@ -6,13 +6,23 @@ import (
 	"github.com/EnderCHX/chx-tools-go/auth"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strings"
 )
 
 func Auth(config config.Config) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		defer func() {
+			if err := recover(); err != nil {
+				c.JSON(response.InternalServerError(err))
+				c.Abort()
+			}
+		}()
 		token := c.GetHeader("Authorization")
+		if token == "" {
+			token = c.Query("token")
+		}
 		if token != "" {
-			token = token[7:] // Bearer
+			token = strings.Replace(token, "Bearer ", "", 1)
 			claims, err := auth.VerifyToken(token, config.SecretKeys.AccessSecret)
 			if err != nil {
 				c.JSON(response.Default(http.StatusUnauthorized, false, response.CLIENT_INVALID_ACCESS_TOKEN, "token非法", nil))
