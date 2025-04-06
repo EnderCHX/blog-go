@@ -11,6 +11,12 @@ import (
 
 func Auth(config config.Config) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		defer func() {
+			if err := recover(); err != nil {
+				c.JSON(response.InternalServerError(err))
+				c.Abort()
+			}
+		}()
 		token := c.GetHeader("Authorization")
 		if token == "" {
 			token = c.Query("token")

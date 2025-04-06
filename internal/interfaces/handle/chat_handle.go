@@ -156,8 +156,8 @@ func (client *Client) heartBeat() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	heartbeattime := time.Second * 60
-	timeout := time.Second * 90
+	heartbeattime := time.Second * 30
+	timeout := time.Second * 40
 	heartBeatTicker := time.NewTicker(heartbeattime)
 	timeoutTicker := time.NewTicker(timeout)
 	defer heartBeatTicker.Stop()
