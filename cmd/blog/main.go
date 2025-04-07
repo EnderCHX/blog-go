@@ -44,6 +44,7 @@ func main() {
 	tagHandle := handle.NewTagHandle(service.NewTagServiceImpl(dbHelper), logger)
 	commentHandle := handle.NewCommentHandle(service.NewCommentServiceImpl(dbHelper), service.NewUserServiceImpl(dbHelper, m, cf.ApiConfig.UserApiUrl), logger)
 	chatHandle := handle.NewChatHandle(service.NewChatService(dbHelper), logger)
+	visitHandle := handle.NewVisitHandle(service.NewVisitServiceImpl(dbHelper))
 
 	server := interfaces.NewHttpServer(cf.ApiConfig.Host, cf.ApiConfig.Port, cf.ApiConfig.Mode,
 		[]gin.HandlerFunc{log.GinZapLogger(), gin.Recovery(), midware.CountVisitor(dbHelper, cf), midware.Cors(cf), midware.Auth(cf)},
@@ -51,6 +52,7 @@ func main() {
 		route.NewTagRouteRegister(tagHandle),
 		route.NewCommentRouteRegister(commentHandle),
 		route.NewChatRouteRegister(chatHandle),
+		route.NewVisitRoute(visitHandle),
 	)
 	//go m.SendMail("c@chxc.cc", "服务器启动", "api服务器启动")
 	server.Start()
